@@ -1,4 +1,4 @@
-type Project = {
+export type Project = {
   id: number
   name: string
   description: string
@@ -10,7 +10,7 @@ type Project = {
   updatedAt: string
 }
 
-export const userProjects: Project[] = [
+export const mockUserProjects: Project[] = [
   {
     id: 1,
     name: '新しいウェブサイトの立ち上げ',
