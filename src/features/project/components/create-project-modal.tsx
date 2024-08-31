@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -12,9 +12,12 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 
+import { useMockUserProjects } from '@/mock-data/store/use-mock-user-projects'
 import { useCreateProjectModal } from '../store/use-create-project-modal'
 
 export const CreateProjectModal = () => {
+  const [mockUserProjects, setMockUserProjects] = useMockUserProjects()
+
   const [open, setOpen] = useCreateProjectModal()
 
   const [name, setName] = useState('')
@@ -24,10 +27,26 @@ export const CreateProjectModal = () => {
     setName('')
   }
 
-  const handleSubmit = () => {
-    // backendにデータを送信する
-    setOpen(false)
-    return
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+
+    // TODO: API連携に切り替える
+    setMockUserProjects([
+      ...mockUserProjects,
+      {
+        id: 11,
+        name: 'Project 1',
+        description: 'test data',
+        dueData: '2024-09-01',
+        status: 'progress',
+        createdBy: 1,
+        updatedBy: 1,
+        createdAt: '2024-08-31',
+        updatedAt: '2024-08-31',
+      },
+    ])
+
+    handleClose()
   }
 
   return (
