@@ -4,8 +4,10 @@ import { useEffect, useState } from 'react'
 
 import { Project } from '@/mock-data/user-projects'
 import { useCreateProjectModal } from '@/features/project/store/use-create-project-modal'
+import { useRouter } from 'next/navigation'
 
 export default function Home() {
+  const router = useRouter()
   const [isLoading, setIsLoading] = useState<boolean>(false)
   
   const [open, setOpen] = useCreateProjectModal()
@@ -16,7 +18,7 @@ export default function Home() {
 
   useEffect(() => {
     if (projectId) {
-      console.log('Transitioning user.')
+      router.replace('/test');
     } else if (!open) {
       setOpen(true)
     }
