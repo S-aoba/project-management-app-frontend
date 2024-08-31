@@ -12,13 +12,13 @@ export const ProjectHeader = ({
   status,
 }: Props) => {
   return (
-    <div className='flex flex-col py-8 px-2 border-b'>
-      <div className='flex items-center justify-start space-x-4 border-b pb-2'>
+    <div className='py-8 border-b'>
+      <div className='flex items-center justify-start space-x-4 border-b px-2 pb-2'>
         <h1 className='text-2xl text-foreground'>{name}</h1>
         <Badge variant={'default'}>{status}</Badge>
         <p className='text-sm text-muted-foreground'>{dueData}</p>
       </div>
-      <div className='mt-4 py-2'>
+      <div className='mt-4 p-2'>
         <h2 className='text-xl font-semibold mb-2'>概要</h2>
         <p className='text-sm text-foreground'>{description}</p>
       </div>
