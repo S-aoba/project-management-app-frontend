@@ -21,6 +21,9 @@ export const ProjectHeader = ({
         <h1 className='text-2xl text-foreground'>{name}</h1>
         <Badge variant={'default'}>{status}</Badge>
         <p className='text-sm text-muted-foreground'>{dueData}</p>
+        <Button size={'sm'} variant={'outline'}>
+          Edit Project
+        </Button>
         <Button
           size={'sm'}
           variant={'destructive'}
