@@ -1,13 +1,20 @@
 'use client'
 
-import { useMockUserProjects } from '@/mock-data/store/use-mock-user-projects'
 import Link from 'next/link'
+
+import { Button } from './ui/button'
+
+import { useCreateProjectModal } from '@/features/project/store/use-create-project-modal'
+import { useMockUserProjects } from '@/mock-data/store/use-mock-user-projects'
 
 export const Navigation = () => {
   const [mockUserProjects] = useMockUserProjects()
+  const [_open, setOpen] = useCreateProjectModal()
 
   return (
     <div className='h-full flex flex-col space-y-4 py-8 px-2 w-60 border-r'>
+      <Button onClick={() => setOpen(true)}>Create Project</Button>
+      <hr className='border-foreground ' />
       {mockUserProjects.map((project) => (
         <NavigationItem key={project.id} name={project.name} id={project.id} />
       ))}
