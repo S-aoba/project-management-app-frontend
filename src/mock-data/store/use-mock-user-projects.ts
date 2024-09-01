@@ -1,8 +1,8 @@
 import { atom, useAtom } from 'jotai'
 
-import { Project } from '../user-projects'
+import { mockUserProjects, Project } from '../user-projects'
 
-const mockProjectDataAtom = atom<Project[]>([])
+const mockProjectDataAtom = atom<Project[]>(mockUserProjects)
 
 export const useMockUserProjects = () => {
   return useAtom(mockProjectDataAtom)
