@@ -3,6 +3,11 @@
 import { useParams } from 'next/navigation'
 import React, { useState } from 'react'
 
+import { format } from 'date-fns'
+import { Calendar as CalendarIcon } from 'lucide-react'
+
+import { cn } from '@/lib/utils'
+
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -13,6 +18,12 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 
+import { Calendar } from '@/components/ui/calendar'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
 import {
   Select,
   SelectContent,
@@ -20,7 +31,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+
 import { useMockUserProjects } from '@/mock-data/store/use-mock-user-projects'
+
 import { useEditProjectModal } from '../store/use-edit-project-modal copy'
 
 export const EditProjectModal = () => {
@@ -36,6 +49,9 @@ export const EditProjectModal = () => {
   const [description, setDescription] = useState(userProject.description)
   const [status, setStatus] = useState<'progress' | 'is_pending' | 'completed'>(
     'progress',
+  )
+  const [date, setDate] = useState<Date | undefined>(
+    userProject.dueData ? new Date(userProject.dueData) : new Date(),
   )
 
   const handleClose = () => {
@@ -57,6 +73,7 @@ export const EditProjectModal = () => {
           name,
           description,
           status,
+          dueData: date ? format(date, 'yyyy-MM-dd') : userProject.dueData,
         }
       }
       return project
@@ -108,6 +125,28 @@ export const EditProjectModal = () => {
                 <SelectItem value='completd'>completd</SelectItem>
               </SelectContent>
             </Select>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  disabled={false}
+                  variant={'outline'}
+                  className={cn(
+                    'w-[280px] justify-start text-left font-normal',
+                    !date && 'text-muted-foreground',
+                  )}>
+                  <CalendarIcon className='mr-2 h-4 w-4' />
+                  {date ? format(date, 'yyyy-MM-dd') : <span>Pick a date</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className='w-auto p-0'>
+                <Calendar
+                  mode='single'
+                  selected={date}
+                  onSelect={setDate}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
             <div className='flex justify-end space-x-4'>
               <Button
                 variant={'outline'}
