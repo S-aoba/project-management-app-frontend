@@ -1,6 +1,7 @@
 'use client'
 
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Project } from '@/mock-data/user-projects'
 
 type Props = Pick<Project, 'name' | 'description' | 'dueData' | 'status'>
@@ -17,6 +18,7 @@ export const ProjectHeader = ({
         <h1 className='text-2xl text-foreground'>{name}</h1>
         <Badge variant={'default'}>{status}</Badge>
         <p className='text-sm text-muted-foreground'>{dueData}</p>
+        <Button size={'sm'} variant={'destructive'}>Delete Project</Button>
       </div>
       <div className='mt-4 p-2'>
         <h2 className='text-xl font-semibold mb-2'>概要</h2>
