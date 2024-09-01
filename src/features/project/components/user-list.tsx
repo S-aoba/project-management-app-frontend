@@ -12,7 +12,7 @@ export const UserList = () => {
     <div className='h-full flex flex-col space-y-4 py-8 px-2 w-40 border-l'>
       <h1 className='text-muted-foreground text-sm'>Participating User List</h1>
       {users.map((user) => (
-        <Link href={'/'}>
+        <Link href={'/'} key={user.id}>
           <div
             key={user.id}
             className='flex items-center p-2 text-center rounded group hover:cursor-pointer hover:bg-muted transition-colors duration-300'>
