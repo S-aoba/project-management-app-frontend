@@ -8,7 +8,7 @@ import { useMockTask } from '@/mock-data/store/use-mock-task'
 import { useCreateTaskProjectModal } from '../store/use-create-task-modal'
 
 export const Tasks = () => {
-  const [task] = useMockTask()
+  const [tasks, setTasks] = useMockTask()
   const [_, setOpen] = useCreateTaskProjectModal()
 
   return (
@@ -21,7 +21,14 @@ export const Tasks = () => {
         <div>
           <Button onClick={() => setOpen(true)}>Create Task</Button>
         </div>
-        <DataTable columns={columns} data={task} />
+        <DataTable
+          columns={columns}
+          data={tasks}
+          onDelete={(row) => {
+            const id = row.original.id
+            setTasks(tasks.filter((task) => task.id !== id))
+          }}
+        />
       </div>
     </div>
   )
