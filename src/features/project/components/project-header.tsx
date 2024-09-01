@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Project } from '@/mock-data/user-projects'
 import { useDeleteProjectModal } from '../store/use-delete-project-modal'
+import { useEditProjectModal } from '../store/use-edit-project-modal copy'
 
 type Props = Pick<Project, 'name' | 'description' | 'dueData' | 'status'>
 
@@ -13,7 +14,8 @@ export const ProjectHeader = ({
   dueData,
   status,
 }: Props) => {
-  const [_open, setOpen] = useDeleteProjectModal()
+  const [_, setDeleteProjectModalOpen] = useDeleteProjectModal()
+  const [__, setEditProjectModalOpen] = useEditProjectModal()
 
   return (
     <div className='py-8 border-b'>
@@ -21,13 +23,16 @@ export const ProjectHeader = ({
         <h1 className='text-2xl text-foreground'>{name}</h1>
         <Badge variant={'default'}>{status}</Badge>
         <p className='text-sm text-muted-foreground'>{dueData}</p>
-        <Button size={'sm'} variant={'outline'}>
+        <Button
+          size={'sm'}
+          variant={'outline'}
+          onClick={() => setEditProjectModalOpen(true)}>
           Edit Project
         </Button>
         <Button
           size={'sm'}
           variant={'destructive'}
-          onClick={() => setOpen(true)}>
+          onClick={() => setDeleteProjectModalOpen(true)}>
           Delete Project
         </Button>
       </div>
