@@ -10,10 +10,18 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { useMockUserProjects } from '@/mock-data/store/use-mock-user-projects'
+import { useParams, useRouter } from 'next/navigation'
 import { useDeleteProjectModal } from '../store/use-delete-project-modal'
 
 export const DeleteProjectModal = () => {
+  const params = useParams()
+  const projectId = Number(params.projectId)
+
+  const router = useRouter()
+
   const [open, setOpen] = useDeleteProjectModal()
+  const [userProjects, setUserProjects] = useMockUserProjects()
 
   const handleClose = () => {
     setOpen(false)
@@ -23,7 +31,14 @@ export const DeleteProjectModal = () => {
     e.preventDefault()
 
     // TODO: API連携に切り替える
-    console.log('delete project.')
+    const remainedUserProjects = userProjects.filter(
+      (project) => project.id !== projectId,
+    )
+
+    setUserProjects(remainedUserProjects)
+    const transitionProjectId = remainedUserProjects[0].id
+
+    router.replace(`/projects/${transitionProjectId}`)
 
     handleClose()
   }
