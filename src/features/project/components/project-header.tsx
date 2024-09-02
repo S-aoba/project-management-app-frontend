@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Project } from '@/mock-data/user-projects'
 import { useDeleteProjectModal } from '../store/use-delete-project-modal'
-import { useEditProjectModal } from '../store/use-edit-project-modal copy'
+import { useEditProjectModal } from '../store/use-edit-project-modal'
 
 type Props = Pick<Project, 'name' | 'description' | 'dueData' | 'status'>
 

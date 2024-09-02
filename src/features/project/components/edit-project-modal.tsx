@@ -34,7 +34,7 @@ import {
 
 import { useMockUserProjects } from '@/mock-data/store/use-mock-user-projects'
 
-import { useEditProjectModal } from '../store/use-edit-project-modal copy'
+import { useEditProjectModal } from '../store/use-edit-project-modal'
 
 export const EditProjectModal = () => {
   const { projectId } = useParams()
@@ -48,17 +48,13 @@ export const EditProjectModal = () => {
   const [name, setName] = useState(userProject.name)
   const [description, setDescription] = useState(userProject.description)
   const [status, setStatus] = useState<'progress' | 'is_pending' | 'completed'>(
-    'progress',
+    userProject.status,
   )
   const [date, setDate] = useState<Date | undefined>(
     userProject.dueData ? new Date(userProject.dueData) : new Date(),
   )
 
   const handleClose = () => {
-    setName('')
-    setDescription('')
-    setStatus('progress')
-
     setOpen(false)
   }
 
@@ -111,7 +107,7 @@ export const EditProjectModal = () => {
               placeholder='Project Description'
             />
             <Select
-              defaultValue={userProject.status}
+              defaultValue={'progress'}
               name={status}
               onValueChange={(e) =>
                 setStatus(e as 'progress' | 'is_pending' | 'completed')
@@ -122,7 +118,7 @@ export const EditProjectModal = () => {
               <SelectContent>
                 <SelectItem value='progress'>progress</SelectItem>
                 <SelectItem value='is_pending'>is_pending</SelectItem>
-                <SelectItem value='completd'>completd</SelectItem>
+                <SelectItem value='completed'>completd</SelectItem>
               </SelectContent>
             </Select>
             <Popover>
