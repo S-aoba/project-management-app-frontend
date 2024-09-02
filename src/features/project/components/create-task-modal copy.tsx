@@ -1,14 +1,11 @@
 'use client'
 
-import { useParams } from 'next/navigation'
-import React, { useState } from 'react'
-
 import { format } from 'date-fns'
 import { Calendar as CalendarIcon } from 'lucide-react'
-
-import { cn } from '@/lib/utils'
+import React, { useState } from 'react'
 
 import { Button } from '@/components/ui/button'
+import { Calendar } from '@/components/ui/calendar'
 import {
   Dialog,
   DialogContent,
@@ -17,8 +14,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-
-import { Calendar } from '@/components/ui/calendar'
 import {
   Popover,
   PopoverContent,
@@ -32,50 +27,52 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 
-import { useMockUserProjects } from '@/mock-data/store/use-mock-user-projects'
+import { useMockTask } from '@/mock-data/store/use-mock-task'
 
-import { useEditProjectModal } from '../store/use-edit-project-modal'
+import { cn } from '@/lib/utils'
+import { useCreateTaskProjectModal } from '../store/use-create-task-modal'
 
-export const EditProjectModal = () => {
-  const { projectId } = useParams()
+export const CreateTaskModal = () => {
+  const [mockTasks, setMockTasks] = useMockTask()
+  const [open, setOpen] = useCreateTaskProjectModal()
 
-  const [open, setOpen] = useEditProjectModal()
-  const [mockUserProjects, setMockUserProjects] = useMockUserProjects()
-  const userProject = mockUserProjects.filter(
-    (project) => project.id === Number(projectId),
-  )[0]
-
-  const [name, setName] = useState(userProject.name)
-  const [description, setDescription] = useState(userProject.description)
+  const [name, setName] = useState('')
+  const [description, setDescription] = useState('')
   const [status, setStatus] = useState<'progress' | 'is_pending' | 'completed'>(
-    userProject.status,
+    'progress',
   )
-  const [date, setDate] = useState<Date | undefined>(
-    userProject.dueData ? new Date(userProject.dueData) : new Date(),
-  )
+  const [priority, setPriority] = useState<'low' | 'medium' | 'high'>('low')
+  const [date, setDate] = useState<Date | undefined>(new Date())
 
   const handleClose = () => {
+    setName('')
+    setDescription('')
+    setStatus('progress')
+
     setOpen(false)
   }
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
+    const id = String(mockTasks.length + 1)
     // TODO: API連携に切り替える
-    const updatedUser = mockUserProjects.map((project) => {
-      if (project.id === Number(projectId)) {
-        return {
-          ...project,
-          name,
-          description,
-          status,
-          dueData: date ? format(date, 'yyyy-MM-dd') : userProject.dueData,
-        }
-      }
-      return project
-    })
-
-    setMockUserProjects(updatedUser)
+    setMockTasks([
+      ...mockTasks,
+      {
+        id,
+        name,
+        description,
+        dueDate: format(date!, 'yyyy-MM-dd'),
+        status,
+        priority,
+        createdBy: 1,
+        updatedBy: 1,
+        createdAt: '2024-08-31',
+        updatedAt: '2024-08-31',
+        assignedUserId: 1,
+      },
+    ])
 
     handleClose()
   }
@@ -84,41 +81,54 @@ export const EditProjectModal = () => {
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit Project</DialogTitle>
+          <DialogTitle>Create Task</DialogTitle>
           <DialogDescription />
           <form className='space-y-4' onSubmit={handleSubmit}>
             <Input
-              defaultValue={userProject.name}
               onChange={(e) => setName(e.target.value)}
               name={name}
               disabled={false}
               required
               autoFocus
               minLength={3}
-              placeholder='Project name'
+              placeholder='Task name'
             />
             <Input
-              defaultValue={userProject.description}
               onChange={(e) => setDescription(e.target.value)}
               name={description}
               disabled={false}
               required
               minLength={3}
-              placeholder='Project Description'
+              placeholder='Task Description'
             />
             <Select
-              defaultValue={'progress'}
+              required
               name={status}
               onValueChange={(e) =>
                 setStatus(e as 'progress' | 'is_pending' | 'completed')
               }>
               <SelectTrigger>
-                <SelectValue placeholder='Project Status' />
+                <SelectValue placeholder='Task Status' />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value='progress'>progress</SelectItem>
                 <SelectItem value='is_pending'>is_pending</SelectItem>
-                <SelectItem value='completed'>completd</SelectItem>
+                <SelectItem value='completd'>completd</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select
+              required
+              name={priority}
+              onValueChange={(e) =>
+                setPriority(e as 'low' | 'medium' | 'high')
+              }>
+              <SelectTrigger>
+                <SelectValue placeholder='Task Priority' />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value='low'>low</SelectItem>
+                <SelectItem value='medium'>medium</SelectItem>
+                <SelectItem value='high'>high</SelectItem>
               </SelectContent>
             </Select>
             <Popover>
@@ -151,7 +161,7 @@ export const EditProjectModal = () => {
                 onClick={() => handleClose()}>
                 Cancel
               </Button>
-              <Button disabled={false}>Edit</Button>
+              <Button disabled={false}>Create</Button>
             </div>
           </form>
         </DialogHeader>

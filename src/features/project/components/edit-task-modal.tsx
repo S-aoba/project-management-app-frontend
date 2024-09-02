@@ -1,6 +1,5 @@
 'use client'
 
-import { useParams } from 'next/navigation'
 import React, { useState } from 'react'
 
 import { format } from 'date-fns'
@@ -32,27 +31,32 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 
-import { useMockUserProjects } from '@/mock-data/store/use-mock-user-projects'
+import { useMockTask } from '@/mock-data/store/use-mock-task'
+import { useEditTaskId, useEditTaskModal } from '../store/use-edit-task-modal'
 
-import { useEditProjectModal } from '../store/use-edit-project-modal'
+export const EditTaskModal = () => {
+  const [taskId, _] = useEditTaskId()
 
-export const EditProjectModal = () => {
-  const { projectId } = useParams()
+  const [open, setOpen] = useEditTaskModal()
 
-  const [open, setOpen] = useEditProjectModal()
-  const [mockUserProjects, setMockUserProjects] = useMockUserProjects()
-  const userProject = mockUserProjects.filter(
-    (project) => project.id === Number(projectId),
-  )[0]
+  const [mockTask, setMockTask] = useMockTask()
+  const task = mockTask.filter((task) => Number(task.id) === taskId)[0]
 
-  const [name, setName] = useState(userProject.name)
-  const [description, setDescription] = useState(userProject.description)
+  const [name, setName] = useState(task?.name)
+  const [description, setDescription] = useState(task?.description)
   const [status, setStatus] = useState<'progress' | 'is_pending' | 'completed'>(
-    userProject.status,
+    task?.status,
   )
   const [date, setDate] = useState<Date | undefined>(
-    userProject.dueData ? new Date(userProject.dueData) : new Date(),
+    task?.dueDate ? new Date(task?.dueDate) : new Date(),
   )
+
+  const [priority, setPriority] = useState<'low' | 'medium' | 'high'>(
+    task?.priority,
+  )
+
+  // assignedUserIdに関しては処理が少し複雑なので後ほど実装する
+  // const [assignedUserId, setAssignedUserId] = useState(task?.assignedUserId)
 
   const handleClose = () => {
     setOpen(false)
@@ -62,20 +66,22 @@ export const EditProjectModal = () => {
     e.preventDefault()
 
     // TODO: API連携に切り替える
-    const updatedUser = mockUserProjects.map((project) => {
-      if (project.id === Number(projectId)) {
+    const updatedTask = mockTask.map((task) => {
+      if (Number(task.id) === taskId) {
         return {
-          ...project,
-          name,
-          description,
-          status,
-          dueData: date ? format(date, 'yyyy-MM-dd') : userProject.dueData,
+          ...task,
+          name: name === undefined ? task.name : name,
+          description:
+            description === undefined ? task.description : description,
+          status: status === undefined ? task.status : status,
+          priority: priority === undefined ? task.priority : priority,
+          dueDate: date ? format(date, 'yyyy-MM-dd') : task.dueDate,
         }
       }
-      return project
+      return task
     })
 
-    setMockUserProjects(updatedUser)
+    setMockTask(updatedTask)
 
     handleClose()
   }
@@ -84,41 +90,56 @@ export const EditProjectModal = () => {
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit Project</DialogTitle>
+          <DialogTitle>Edit Task</DialogTitle>
           <DialogDescription />
           <form className='space-y-4' onSubmit={handleSubmit}>
             <Input
-              defaultValue={userProject.name}
+              defaultValue={task?.name}
               onChange={(e) => setName(e.target.value)}
               name={name}
               disabled={false}
               required
               autoFocus
               minLength={3}
-              placeholder='Project name'
+              placeholder='Task name'
             />
             <Input
-              defaultValue={userProject.description}
+              defaultValue={task?.description}
               onChange={(e) => setDescription(e.target.value)}
               name={description}
               disabled={false}
               required
               minLength={3}
-              placeholder='Project Description'
+              placeholder='Task Description'
             />
             <Select
-              defaultValue={'progress'}
+              defaultValue={task?.status}
               name={status}
               onValueChange={(e) =>
                 setStatus(e as 'progress' | 'is_pending' | 'completed')
               }>
               <SelectTrigger>
-                <SelectValue placeholder='Project Status' />
+                <SelectValue placeholder='Task Status' />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value='progress'>progress</SelectItem>
                 <SelectItem value='is_pending'>is_pending</SelectItem>
                 <SelectItem value='completed'>completd</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select
+              defaultValue={task?.priority}
+              name={priority}
+              onValueChange={(e) =>
+                setPriority(e as 'low' | 'medium' | 'high')
+              }>
+              <SelectTrigger>
+                <SelectValue placeholder='Task Priority' />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value='low'>low</SelectItem>
+                <SelectItem value='medium'>medium</SelectItem>
+                <SelectItem value='high'>high</SelectItem>
               </SelectContent>
             </Select>
             <Popover>
@@ -131,13 +152,17 @@ export const EditProjectModal = () => {
                     !date && 'text-muted-foreground',
                   )}>
                   <CalendarIcon className='mr-2 h-4 w-4' />
-                  {date ? format(date, 'yyyy-MM-dd') : <span>Pick a date</span>}
+                  {task?.dueDate ? (
+                    format(task?.dueDate, 'yyyy-MM-dd')
+                  ) : (
+                    <span>Pick a date</span>
+                  )}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className='w-auto p-0'>
                 <Calendar
                   mode='single'
-                  selected={date}
+                  selected={task?.dueDate ? new Date(task?.dueDate) : date}
                   onSelect={setDate}
                   initialFocus
                 />
