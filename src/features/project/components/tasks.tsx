@@ -21,14 +21,7 @@ export const Tasks = () => {
         <div>
           <Button onClick={() => setOpen(true)}>Create Task</Button>
         </div>
-        <DataTable
-          columns={columns}
-          data={tasks}
-          onDelete={(row) => {
-            const id = row.original.id
-            setTasks(tasks.filter((task) => task.id !== id))
-          }}
-        />
+        <DataTable columns={columns} data={tasks} />
       </div>
     </div>
   )

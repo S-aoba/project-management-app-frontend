@@ -1,7 +1,9 @@
 'use client'
 
+import { useMockTask } from '@/mock-data/store/use-mock-task'
 import { Task } from '@/mock-data/task'
 import { ColumnDef } from '@tanstack/react-table'
+import { Button } from './ui/button'
 import { Checkbox } from './ui/checkbox'
 
 export const columns: ColumnDef<Task>[] = [
@@ -54,5 +56,29 @@ export const columns: ColumnDef<Task>[] = [
   {
     accessorKey: 'createdAt',
     header: 'CreatedAt',
+  },
+  {
+    accessorKey: 'action',
+    header: 'Action',
+    cell: ({ row }) => {
+      const [_, setTasks] = useMockTask()
+
+      const id = row.original.id
+
+      const onClick = () => {
+        setTasks((prev) => prev.filter((task) => task.id !== id))
+      }
+
+      return (
+        <div className='flex space-x-2'>
+          <Button size={'sm'} variant='outline'>
+            Edit
+          </Button>
+          <Button size={'sm'} variant='destructive' onClick={onClick}>
+            Delete
+          </Button>
+        </div>
+      )
+    },
   },
 ]
