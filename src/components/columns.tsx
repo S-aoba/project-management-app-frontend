@@ -1,8 +1,13 @@
 'use client'
 
+import {
+  useEditTaskId,
+  useEditTaskModal,
+} from '@/features/project/store/use-edit-task-modal'
 import { useMockTask } from '@/mock-data/store/use-mock-task'
 import { Task } from '@/mock-data/task'
 import { ColumnDef } from '@tanstack/react-table'
+import { useParams, useRouter } from 'next/navigation'
 import { Button } from './ui/button'
 import { Checkbox } from './ui/checkbox'
 
@@ -61,7 +66,13 @@ export const columns: ColumnDef<Task>[] = [
     accessorKey: 'action',
     header: 'Action',
     cell: ({ row }) => {
+      const router = useRouter()
+      const params = useParams()
+      const projectId = Number(params.projectId)
+
       const [_, setTasks] = useMockTask()
+      const [__, setOpen] = useEditTaskModal()
+      const [___, setEditTaskId] = useEditTaskId()
 
       const id = row.original.id
 
@@ -69,9 +80,14 @@ export const columns: ColumnDef<Task>[] = [
         setTasks((prev) => prev.filter((task) => task.id !== id))
       }
 
+      const onEdit = () => {
+        setEditTaskId(Number(id))
+        setOpen(true)
+      }
+
       return (
         <div className='flex space-x-2'>
-          <Button size={'sm'} variant='outline'>
+          <Button size={'sm'} variant='outline' onClick={onEdit}>
             Edit
           </Button>
           <Button size={'sm'} variant='destructive' onClick={onClick}>

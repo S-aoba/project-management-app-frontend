@@ -6,6 +6,7 @@ import { CreateProjectModal } from '@/features/project/components/create-project
 import { CreateTaskModal } from '@/features/project/components/create-task-modal copy'
 import { DeleteProjectModal } from '@/features/project/components/delete-project-modal'
 import { EditProjectModal } from '@/features/project/components/edit-project-modal'
+import { EditTaskModal } from '@/features/project/components/edit-task-modal'
 
 export const Modals = () => {
   const [mounted, setMounted] = useState<boolean>(false)
@@ -23,6 +24,7 @@ export const Modals = () => {
       <DeleteProjectModal />
 
       <CreateTaskModal />
+      <EditTaskModal />
     </>
   )
 }
