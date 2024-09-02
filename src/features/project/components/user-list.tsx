@@ -9,19 +9,28 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { useConfirm } from '@/hooks/use-confirm'
 
 import { useMockParticipatingUserList } from '@/mock-data/store/use-mock-participating-user-list'
 import { Trash } from 'lucide-react'
 
 export const UserList = () => {
   const [users, setUsers] = useMockParticipatingUserList()
+  const [ConfirDialog, confirm] = useConfirm(
+    'Are you sure?',
+    'You are about to perform a delete action.',
+  )
+  const onDelete = async (id: number) => {
+    const ok = await confirm()
 
-  const onDelete = (id: number) => {
-    setUsers(users.filter((user) => user.id !== id))
+    if (ok) {
+      setUsers(users.filter((user) => user.id !== id))
+    }
   }
 
   return (
     <div className='h-full flex flex-col space-y-4 py-8 px-2 w-40 border-l'>
+      <ConfirDialog />
       <h1 className='text-muted-foreground text-sm'>Participating User List</h1>
       {users.map((user) => (
         <UserItem
