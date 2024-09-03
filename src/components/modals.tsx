@@ -20,7 +20,7 @@ export const Modals = () => {
   return (
     <>
       <CreateProjectModal />
-      <EditProjectModal />
+      {/* <EditProjectModal /> */}
       <DeleteProjectModal />
 
       <CreateTaskModal />
