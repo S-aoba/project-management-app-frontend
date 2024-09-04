@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useState } from 'react'
 
 import { Button } from '@/components/ui/button'
@@ -45,6 +46,9 @@ export const LoginForm = () => {
             Login
           </Button>
         </form>
+        <div className='pt-2 text-xs text-muted-foreground hover:underline hover:underline-offset-2 flex justify-end'>
+          <Link href={'/register'}>No account yet ?</Link>
+        </div>
       </CardContent>
     </Card>
   )
