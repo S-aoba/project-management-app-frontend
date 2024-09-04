@@ -13,9 +13,9 @@ export async function middleware(request: NextRequest) {
 
     const user = await res.json()
 
-    if (user['message'] === 'Unauthenticated.') {
-      return NextResponse.redirect(new URL('/login', request.url))
-    }
+    // if (user['message'] === 'Unauthenticated.') {
+    //   return NextResponse.redirect(new URL('/login', request.url))
+    // }
 
     return NextResponse.next()
   } catch (error) {

@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { FormEvent, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -12,10 +12,27 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { useAuth } from '../api/use-auth'
+import { useRouter } from 'next/navigation'
 
 export const LoginForm = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+
+  const router = useRouter()
+  const { login } = useAuth()
+
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+
+    login({
+      email,
+      password,
+    })
+
+    console.log('login Success')
+    router.push('/projects/1')
+  }
 
   return (
     <Card className='w-full h-full p-8'>
@@ -24,7 +41,7 @@ export const LoginForm = () => {
         <CardDescription>Use your email.</CardDescription>
       </CardHeader>
       <CardContent className='space-y-5 px-0 pb-0'>
-        <form className='space-y-2.5'>
+        <form className='space-y-2.5' onSubmit={handleSubmit}>
           <Input
             autoFocus
             disabled={false}
