@@ -12,30 +12,31 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+
+import { InputError } from '@/components/input-error'
 import { useAuth } from '../api/use-auth'
-import { useRouter } from 'next/navigation'
 
 export const LoginForm = () => {
+  const [error, setError] = useState('')
+
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
-  const router = useRouter()
   const { login } = useAuth()
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
     login({
+      setError,
       email,
       password,
     })
-
-    console.log('login Success')
-    router.push('/projects/1')
   }
 
   return (
     <Card className='w-full h-full p-8'>
+      {error && <InputError message={error} />}
       <CardHeader className='px-0 pt-0'>
         <CardTitle>Login</CardTitle>
         <CardDescription>Use your email.</CardDescription>
