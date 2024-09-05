@@ -17,7 +17,7 @@ export const useAuth = ({ setError }: AuthProps) => {
   const router = useRouter()
   const { csrfToken, getCsrfToken } = useCsrfToken()
 
-  const { mutate: login, isPending } = useMutation({
+  const { mutate: login, isPending: isLoginPending } = useMutation({
     mutationKey: ['login'],
     mutationFn: async ({ email, password }: LoginProps) => {
       await csrfToken()
@@ -68,5 +68,5 @@ export const useAuth = ({ setError }: AuthProps) => {
     },
   })
 
-  return { login, isPending, logout, isLogoutPending }
+  return { login,isLoginPending, logout, isLogoutPending }
 }
