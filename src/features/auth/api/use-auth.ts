@@ -47,5 +47,26 @@ export const useAuth = ({ setError }: AuthProps) => {
     },
   })
 
-  return { login, isPending }
+  const { mutate: logout, isPending: isLogoutPending } = useMutation({
+    mutationKey: ['logout'],
+    mutationFn: async () => {
+      await csrfToken()
+
+      const csrf = getCsrfToken('XSRF-TOKEN')
+      await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/logout`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          'X-XSRF-TOKEN': csrf!,
+        },
+      })
+    },
+    onSuccess: () => {
+      window.location.pathname = '/login'
+    },
+  })
+
+  return { login, isPending, logout, isLogoutPending }
 }
