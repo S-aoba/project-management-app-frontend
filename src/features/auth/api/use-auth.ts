@@ -1,23 +1,25 @@
+import { useMutation } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import { Dispatch, SetStateAction } from 'react'
 
 import { useCsrfToken } from './use-csrf-token'
 
-type LoginProps = {
+type AuthProps = {
   setError: Dispatch<SetStateAction<string>>
+}
+
+type LoginProps = {
   email: string
   password: string
 }
 
-export const useAuth = () => {
-  const { csrfToken, getCsrfToken } = useCsrfToken()
+export const useAuth = ({ setError }: AuthProps) => {
   const router = useRouter()
+  const { csrfToken, getCsrfToken } = useCsrfToken()
 
-  const login = async ({ setError, ...props }: LoginProps) => {
-    try {
-
-      setError('')
-
+  const { mutate: login, isPending } = useMutation({
+    mutationKey: ['login'],
+    mutationFn: async ({ email, password }: LoginProps) => {
       await csrfToken()
 
       const csrf = getCsrfToken('XSRF-TOKEN')
@@ -25,7 +27,7 @@ export const useAuth = () => {
       const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/login`, {
         method: 'POST',
         credentials: 'include',
-        body: JSON.stringify(props),
+        body: JSON.stringify({ email, password }),
         headers: {
           'Content-Type': 'application/json',
           Accept: 'application/json',
@@ -36,13 +38,14 @@ export const useAuth = () => {
       if (!res.ok) {
         throw new Error('Authentication failed.')
       }
+    },
+    onSuccess: () => {
       router.push('/')
-    } catch (error) {
-      if (error instanceof Error) {
-        setError(error.message)
-      }
-    }
-  }
+    },
+    onError: (error: Error) => {
+      setError(error.message)
+    },
+  })
 
-  return { login }
+  return { login, isPending }
 }
