@@ -5,13 +5,13 @@ import {
   useEditTaskModal,
 } from '@/features/project/store/use-edit-task-modal'
 import { useMockTask } from '@/mock-data/store/use-mock-task'
-import { Task } from '@/mock-data/task'
+import { TaskType } from '@/types/type'
 import { ColumnDef } from '@tanstack/react-table'
 import { useParams, useRouter } from 'next/navigation'
 import { Button } from './ui/button'
 import { Checkbox } from './ui/checkbox'
 
-export const columns: ColumnDef<Task>[] = [
+export const columns: ColumnDef<TaskType>[] = [
   {
     id: 'select',
     header: ({ table }) => (
@@ -76,9 +76,9 @@ export const columns: ColumnDef<Task>[] = [
 
       const id = row.original.id
 
-      const onClick = () => {
-        setTasks((prev) => prev.filter((task) => task.id !== id))
-      }
+      // const onClick = () => {
+      //   setTasks((prev) => prev.filter((task) => task.id !== id))
+      // }
 
       const onEdit = () => {
         setEditTaskId(Number(id))
@@ -90,7 +90,7 @@ export const columns: ColumnDef<Task>[] = [
           <Button size={'sm'} variant='outline' onClick={onEdit}>
             Edit
           </Button>
-          <Button size={'sm'} variant='destructive' onClick={onClick}>
+          <Button size={'sm'} variant='destructive'>
             Delete
           </Button>
         </div>

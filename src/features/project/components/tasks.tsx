@@ -4,11 +4,17 @@ import { columns } from '@/components/columns'
 import { DataTable } from '@/components/data-table'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { useMockTask } from '@/mock-data/store/use-mock-task'
+import { Loader2 } from 'lucide-react'
+import { useParams } from 'next/navigation'
+import { useProjects } from '../api/use-projects'
 import { useCreateTaskProjectModal } from '../store/use-create-task-modal'
 
 export const Tasks = () => {
-  const [tasks, setTasks] = useMockTask()
+  const params = useParams()
+  const projectId = Number(params.projectId)
+
+  const { singleProject, isSingleProjectPending } = useProjects(projectId)
+
   const [_, setOpen] = useCreateTaskProjectModal()
 
   return (
@@ -21,7 +27,13 @@ export const Tasks = () => {
         <div>
           <Button onClick={() => setOpen(true)}>Create Task</Button>
         </div>
-        <DataTable columns={columns} data={tasks} />
+        {isSingleProjectPending ? (
+          <div className='h-full flex items-center justify-center'>
+            <Loader2 className='size-8 text-slate-300 animate-spin' />
+          </div>
+        ) : (
+          <DataTable columns={columns} data={singleProject!.tasks} />
+        )}
       </div>
     </div>
   )
