@@ -1,6 +1,5 @@
 'use client'
 
-import { Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
 
@@ -9,6 +8,7 @@ import { Button } from './ui/button'
 import { useAuth } from '@/features/auth/api/use-auth'
 import { useUserProjects } from '@/features/project/api/use-projects'
 import { useCreateProjectModal } from '@/features/project/store/use-create-project-modal'
+import { Skeleton } from './ui/skeleton'
 
 export const Navigation = () => {
   const { userProjects, isUserProjectsPending } = useUserProjects()
@@ -25,9 +25,11 @@ export const Navigation = () => {
         <hr className='border-foreground' />
 
         {isUserProjectsPending ? (
-          <div className='h-full flex items-center justify-center'>
-            <Loader2 className='size-8 text-slate-400 animate-spin' />
-          </div>
+          <>
+            <Skeleton className='w-full h-10 bg-slate-300' />
+            <Skeleton className='w-full h-10 bg-slate-300' />
+            <Skeleton className='w-full h-10 bg-slate-300' />
+          </>
         ) : (
           userProjects?.data.map((project) => {
             return (
