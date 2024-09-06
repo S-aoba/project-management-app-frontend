@@ -1,26 +1,26 @@
 'use client'
 
-import { useEffect } from 'react'
-
 import { useRouter } from 'next/navigation'
+import { useEffect, useMemo } from 'react'
 
+import { useProjects } from '@/features/project/api/use-projects'
 import { useCreateProjectModal } from '@/features/project/store/use-create-project-modal'
-import { useMockUserProjects } from '@/mock-data/store/use-mock-user-projects'
 
 export default function Home() {
   const router = useRouter()
 
   const [open, setOpen] = useCreateProjectModal()
 
-  const [mockUserProjects, _] = useMockUserProjects()
-
-  const projectId = mockUserProjects[0]?.id
+  const { userProjects, isUserProjectsPending } = useProjects()
+  const projectId = useMemo(() => userProjects?.data[0].id, [userProjects])
 
   useEffect(() => {
+    if (isUserProjectsPending) return
+
     if (projectId) {
       router.replace(`/projects/${projectId}`)
     } else if (!open) {
       setOpen(true)
     }
-  }, [projectId, open, setOpen, router])
+  }, [projectId, open, setOpen, router, isUserProjectsPending])
 }
