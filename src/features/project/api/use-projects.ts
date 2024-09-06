@@ -6,7 +6,7 @@ type ResponseType = {
   data: Project[]
 }
 
-export const useUserProjects = () => {
+export const useUserProjects = (projectId?: number) => {
   const { csrfToken, getCsrfToken } = useCsrfToken()
 
   const { data: userProjects, isPending: isUserProjectsPending } =
@@ -39,6 +39,35 @@ export const useUserProjects = () => {
     })
 
   // singleProject
+  const { data: singleProject, isPending: isSingleProjectPending } = useQuery<ResponseType>({
+    queryKey: ['userProjects'],
+    queryFn: async () => {
+      await csrfToken()
 
-  return { userProjects, isUserProjectsPending }
+      const csrf = getCsrfToken('XSRF-TOKEN')
+
+      if (projectId === undefined) throw new Error('projectId is undefined.')
+
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_API}/api/projects/${projectId}`,
+        {
+          method: 'GET',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+            'X-XSRF-TOKEN': csrf!,
+          },
+        },
+      )
+
+      if (!res.ok) {
+        throw new Error('Unauthenticated.')
+      }
+
+      return await res.json()
+    },
+  })
+
+  return { userProjects, isUserProjectsPending, singleProject, isSingleProjectPending }
 }
