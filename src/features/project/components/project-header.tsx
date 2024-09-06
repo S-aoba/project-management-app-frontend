@@ -19,12 +19,11 @@ export const ProjectHeader = () => {
   const projectId = Number(params.projectId)
 
   const { singleProject, isSingleProjectPending } = useUserProjects(projectId)
-  const project = singleProject?.data[0]
 
-  const name = project?.name
-  const status = project?.status
-  const dueData = project?.dueData
-  const description = project?.description
+  const name = singleProject?.project?.name
+  const status = singleProject?.project?.status
+  const dueData = singleProject?.project?.dueData
+  const description = singleProject?.project?.description
 
   return (
     <>

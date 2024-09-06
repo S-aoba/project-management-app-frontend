@@ -1,16 +1,22 @@
 import { useCsrfToken } from '@/features/auth/api/use-csrf-token'
-import { Project } from '@/types/type'
+import { Project, TaskType, UserType } from '@/types/type'
 import { useQuery } from '@tanstack/react-query'
 
-type ResponseType = {
+type UserProjectsResponseType = {
   data: Project[]
+}
+
+type SingleProjectResponseType = {
+  project: Project
+  tasks: TaskType
+  uses: UserType
 }
 
 export const useUserProjects = (projectId?: number) => {
   const { csrfToken, getCsrfToken } = useCsrfToken()
 
   const { data: userProjects, isPending: isUserProjectsPending } =
-    useQuery<ResponseType>({
+    useQuery<UserProjectsResponseType>({
       queryKey: ['userProjects'],
       queryFn: async () => {
         await csrfToken()
@@ -39,35 +45,42 @@ export const useUserProjects = (projectId?: number) => {
     })
 
   // singleProject
-  const { data: singleProject, isPending: isSingleProjectPending } = useQuery<ResponseType>({
-    queryKey: ['userProjects'],
-    queryFn: async () => {
-      await csrfToken()
+  const { data: singleProject, isPending: isSingleProjectPending } =
+    useQuery<SingleProjectResponseType>({
+      queryKey: ['singleProject', projectId],
+      enabled: !!projectId,
+      queryFn: async () => {
+        await csrfToken()
 
-      const csrf = getCsrfToken('XSRF-TOKEN')
+        const csrf = getCsrfToken('XSRF-TOKEN')
 
-      if (projectId === undefined) throw new Error('projectId is undefined.')
+        if (projectId === undefined) throw new Error('projectId is undefined.')
 
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_API}/api/projects/${projectId}`,
-        {
-          method: 'GET',
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json',
-            'X-XSRF-TOKEN': csrf!,
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_API}/api/projects/${projectId}`,
+          {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json',
+              Accept: 'application/json',
+              'X-XSRF-TOKEN': csrf!,
+            },
           },
-        },
-      )
+        )
 
-      if (!res.ok) {
-        throw new Error('Unauthenticated.')
-      }
+        if (!res.ok) {
+          throw new Error('Unauthenticated.')
+        }
 
-      return await res.json()
-    },
-  })
+        return await res.json()
+      },
+    })
 
-  return { userProjects, isUserProjectsPending, singleProject, isSingleProjectPending }
+  return {
+    userProjects,
+    isUserProjectsPending,
+    singleProject,
+    isSingleProjectPending,
+  }
 }
