@@ -22,7 +22,7 @@ export type TaskType = {
   updatedBy: number
   createdAt: string
   updatedAt: string
-  assigned_user_id: number
+  assignedUserId: number
 }
 
 export type UserType = {
