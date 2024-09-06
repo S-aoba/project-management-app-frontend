@@ -6,12 +6,12 @@ import { useState } from 'react'
 import { Button } from './ui/button'
 
 import { useAuth } from '@/features/auth/api/use-auth'
-import { useUserProjects } from '@/features/project/api/use-projects'
+import { useProjects } from '@/features/project/api/use-projects'
 import { useCreateProjectModal } from '@/features/project/store/use-create-project-modal'
 import { Skeleton } from './ui/skeleton'
 
 export const Navigation = () => {
-  const { userProjects, isUserProjectsPending } = useUserProjects()
+  const { userProjects, isUserProjectsPending } = useProjects()
 
   const [_open, setOpen] = useCreateProjectModal()
   const [error, setError] = useState('')

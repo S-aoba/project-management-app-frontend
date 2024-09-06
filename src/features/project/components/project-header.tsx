@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 
-import { useUserProjects } from '../api/use-projects'
+import { useProjects } from '../api/use-projects'
 
 import { Skeleton } from '@/components/ui/skeleton'
 import { useDeleteProjectModal } from '../store/use-delete-project-modal'
@@ -18,7 +18,7 @@ export const ProjectHeader = () => {
   const params = useParams()
   const projectId = Number(params.projectId)
 
-  const { singleProject, isSingleProjectPending } = useUserProjects(projectId)
+  const { singleProject, isSingleProjectPending } = useProjects(projectId)
 
   const name = singleProject?.project?.name
   const status = singleProject?.project?.status

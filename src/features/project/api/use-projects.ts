@@ -12,7 +12,7 @@ type SingleProjectResponseType = {
   uses: UserType
 }
 
-export const useUserProjects = (projectId?: number) => {
+export const useProjects = (projectId?: number) => {
   const { csrfToken, getCsrfToken } = useCsrfToken()
 
   const { data: userProjects, isPending: isUserProjectsPending } =
