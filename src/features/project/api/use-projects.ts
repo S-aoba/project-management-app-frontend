@@ -8,8 +8,8 @@ type UserProjectsResponseType = {
 
 type SingleProjectResponseType = {
   project: Project
-  tasks: TaskType
-  uses: UserType
+  tasks: TaskType[]
+  users: UserType[]
 }
 
 export const useProjects = (projectId?: number) => {
