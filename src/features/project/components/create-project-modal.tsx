@@ -1,8 +1,13 @@
 'use client'
 
+import { format } from 'date-fns'
+import { CalendarIcon } from 'lucide-react'
 import React, { useState } from 'react'
 
+import { cn } from '@/lib/utils'
+
 import { Button } from '@/components/ui/button'
+import { Calendar } from '@/components/ui/calendar'
 import {
   Dialog,
   DialogContent,
@@ -11,16 +16,24 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
 
-import { useMockUserProjects } from '@/mock-data/store/use-mock-user-projects'
+import { useProjects } from '../api/use-projects'
+
 import { useCreateProjectModal } from '../store/use-create-project-modal'
 
 export const CreateProjectModal = () => {
-  const [mockUserProjects, setMockUserProjects] = useMockUserProjects()
+  const { createProject, isCreateProjectPending } = useProjects()
 
   const [open, setOpen] = useCreateProjectModal()
 
   const [name, setName] = useState('')
+  const [description, setDescription] = useState('')
+  const [date, setDate] = useState<Date | undefined>(new Date())
 
   const handleClose = () => {
     setOpen(false)
@@ -30,21 +43,16 @@ export const CreateProjectModal = () => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    // TODO: API連携に切り替える
-    setMockUserProjects([
-      ...mockUserProjects,
-      {
-        id: 11,
-        name: 'Project 1',
-        description: 'test data',
-        dueData: '2024-09-01',
-        status: 'progress',
-        createdBy: 1,
-        updatedBy: 1,
-        createdAt: '2024-08-31',
-        updatedAt: '2024-08-31',
-      },
-    ])
+    if (date === undefined) return
+    const due_date = format(date, 'yyyy-MM-dd')
+
+    createProject({
+      name,
+      description,
+      status: 'pending',
+      due_date,
+      image_path: null,
+    })
 
     handleClose()
   }
@@ -58,14 +66,49 @@ export const CreateProjectModal = () => {
           <form className='space-y-4' onSubmit={handleSubmit}>
             <Input
               name={name}
-              disabled={false}
+              disabled={isCreateProjectPending}
               required
               autoFocus
               minLength={3}
               placeholder='Project name'
+              onChange={(e) => setName(e.target.value)}
             />
+            <Input
+              name={description}
+              disabled={isCreateProjectPending}
+              placeholder='Project description'
+              onChange={(e) => setDescription(e.target.value)}
+            />
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  disabled={isCreateProjectPending}
+                  variant={'outline'}
+                  className={cn(
+                    'w-[280px] justify-start text-left font-normal',
+                    !date && 'text-muted-foreground',
+                  )}>
+                  <CalendarIcon className='mr-2 h-4 w-4' />
+                  {date ? (
+                    format(date, 'yyyy-MM-dd')
+                  ) : (
+                    <span>Pick a dueDate</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className='w-auto p-0'>
+                <Calendar
+                  mode='single'
+                  selected={date}
+                  onSelect={setDate}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
             <div className='flex justify-end'>
-              <Button disabled={false}>Create</Button>
+              <Button type='submit' disabled={isCreateProjectPending}>
+                {isCreateProjectPending ? 'Waiting....' : 'Create'}
+              </Button>
             </div>
           </form>
         </DialogHeader>

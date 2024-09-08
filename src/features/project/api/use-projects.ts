@@ -1,6 +1,6 @@
 import { useCsrfToken } from '@/features/auth/api/use-csrf-token'
 import { Project, TaskType, UserType } from '@/types/type'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 
 type UserProjectsResponseType = {
   data: Project[]
@@ -11,6 +11,11 @@ type SingleProjectResponseType = {
   tasks: TaskType[]
   users: UserType[]
 }
+
+type CreateProjectRequestType = Pick<
+  Project,
+  'name' | 'description' | 'status' | 'due_date' | 'image_path'
+>
 
 export const useProjects = (projectId?: number) => {
   const { csrfToken, getCsrfToken } = useCsrfToken()
@@ -77,10 +82,44 @@ export const useProjects = (projectId?: number) => {
       },
     })
 
+  const { mutate: createProject, isPending: isCreateProjectPending } = useMutation({
+    mutationKey: ['creatProject'],
+    mutationFn: async ({ ...props }: CreateProjectRequestType) => {
+      await csrfToken()
+
+      const csrf = getCsrfToken('XSRF-TOKEN')
+
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_API}/api/projects`,
+        {
+          method: 'POST',
+          credentials: 'include',
+          body: JSON.stringify(props),
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+            'X-XSRF-TOKEN': csrf!,
+          },
+        },
+      )
+
+      if (!res.ok) {
+        throw new Error('Unauthenticated.')
+      }
+
+      return await res.json()
+    },
+    onSuccess(data) {
+      console.log(data)
+    },
+  })
+
   return {
     userProjects,
     isUserProjectsPending,
     singleProject,
     isSingleProjectPending,
+    createProject,
+    isCreateProjectPending
   }
 }
