@@ -2,8 +2,9 @@ export type Project = {
   id: number
   name: string
   description: string
-  dueDate: string
+  due_date: string
   status: 'pending' | 'is_progress' | 'completed'
+  image_path: string | null
   createdBy: number
   updatedBy: number
   createdAt: string
@@ -14,10 +15,10 @@ export type TaskType = {
   id: number
   name: string
   description: string
-  dueDate: string
+  due_date: string
   status: 'pending' | 'is_progress' | 'completed'
   priority: 'low' | 'medium' | 'high'
-  imagePath: string
+  image_path: string | null
   createdBy: number
   updatedBy: number
   createdAt: string
