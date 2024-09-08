@@ -22,7 +22,7 @@ export const ProjectHeader = () => {
 
   const name = singleProject?.project?.name
   const status = singleProject?.project?.status
-  const dueData = singleProject?.project?.dueData
+  const dueDate = singleProject?.project?.dueDate
   const description = singleProject?.project?.description
 
   return (
@@ -58,7 +58,7 @@ export const ProjectHeader = () => {
           <div className='flex items-center justify-start space-x-4 border-b px-2 pb-2'>
             <h1 className='text-2xl text-foreground'>{name}</h1>
             <Badge variant={'default'}>{status}</Badge>
-            <p className='text-sm text-muted-foreground'>{dueData}</p>
+            <p className='text-sm text-muted-foreground'>{dueDate}</p>
             <Button
               size={'sm'}
               variant={'outline'}
