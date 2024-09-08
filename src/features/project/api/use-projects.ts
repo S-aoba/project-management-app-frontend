@@ -1,6 +1,9 @@
+import { QueryClient, useMutation, useQuery } from '@tanstack/react-query'
+import { useRouter } from 'next/navigation'
+
 import { useCsrfToken } from '@/features/auth/api/use-csrf-token'
+
 import { Project, TaskType, UserType } from '@/types/type'
-import { useMutation, useQuery } from '@tanstack/react-query'
 
 type UserProjectsResponseType = {
   data: Project[]
@@ -18,11 +21,15 @@ type CreateProjectRequestType = Pick<
 >
 
 export const useProjects = (projectId?: number) => {
+  const router = useRouter()
+  const queryClient = new QueryClient()
+
   const { csrfToken, getCsrfToken } = useCsrfToken()
 
   const { data: userProjects, isPending: isUserProjectsPending } =
     useQuery<UserProjectsResponseType>({
       queryKey: ['userProjects'],
+      staleTime: 0,
       queryFn: async () => {
         await csrfToken()
 
@@ -82,37 +89,44 @@ export const useProjects = (projectId?: number) => {
       },
     })
 
-  const { mutate: createProject, isPending: isCreateProjectPending } = useMutation({
-    mutationKey: ['creatProject'],
-    mutationFn: async ({ ...props }: CreateProjectRequestType) => {
-      await csrfToken()
+  const { mutate: createProject, isPending: isCreateProjectPending } =
+    useMutation({
+      mutationKey: ['creatProject'],
+      mutationFn: async ({ ...props }: CreateProjectRequestType) => {
+        await csrfToken()
 
-      const csrf = getCsrfToken('XSRF-TOKEN')
+        const csrf = getCsrfToken('XSRF-TOKEN')
 
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_API}/api/projects`,
-        {
-          method: 'POST',
-          credentials: 'include',
-          body: JSON.stringify(props),
-          headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json',
-            'X-XSRF-TOKEN': csrf!,
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_API}/api/projects`,
+          {
+            method: 'POST',
+            credentials: 'include',
+            body: JSON.stringify(props),
+            headers: {
+              'Content-Type': 'application/json',
+              Accept: 'application/json',
+              'X-XSRF-TOKEN': csrf!,
+            },
           },
-        },
-      )
+        )
 
-      if (!res.ok) {
-        throw new Error('Unauthenticated.')
-      }
+        if (!res.ok) {
+          throw new Error('Unauthenticated.')
+        }
 
-      return await res.json()
-    },
-    onSuccess(data) {
-      console.log(data)
-    },
-  })
+        return await res.json()
+      },
+      onSuccess(data) {
+        queryClient.invalidateQueries({
+          queryKey: ['userProjects'],
+        })
+
+        const id = data.data.id
+
+        router.push(`/projects/${id}`)
+      },
+    })
 
   return {
     userProjects,
@@ -120,6 +134,6 @@ export const useProjects = (projectId?: number) => {
     singleProject,
     isSingleProjectPending,
     createProject,
-    isCreateProjectPending
+    isCreateProjectPending,
   }
 }
