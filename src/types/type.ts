@@ -2,9 +2,9 @@ export type Project = {
   id: number
   name: string
   description: string
-  due_date: string
+  dueDate: string
   status: 'pending' | 'is_progress' | 'completed'
-  image_path: string | null
+  imagePath: string | null
   createdBy: number
   updatedBy: number
   createdAt: string

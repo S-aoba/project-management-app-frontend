@@ -17,7 +17,7 @@ type SingleProjectResponseType = {
 
 type CreateProjectRequestType = Pick<
   Project,
-  'name' | 'description' | 'status' | 'due_date' | 'image_path'
+  'name' | 'description' | 'status' | 'dueDate' | 'imagePath'
 >
 
 export const useProjects = (projectId?: number) => {
@@ -97,12 +97,20 @@ export const useProjects = (projectId?: number) => {
 
         const csrf = getCsrfToken('XSRF-TOKEN')
 
+        const projectData = {
+          name: props.name,
+          description: props.description,
+          due_date: props.dueDate,
+          status: props.status,
+          image_path: props.imagePath
+        }
+
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_BACKEND_API}/api/projects`,
           {
             method: 'POST',
             credentials: 'include',
-            body: JSON.stringify(props),
+            body: JSON.stringify(projectData),
             headers: {
               'Content-Type': 'application/json',
               Accept: 'application/json',

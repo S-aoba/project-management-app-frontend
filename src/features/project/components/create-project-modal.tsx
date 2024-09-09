@@ -44,14 +44,14 @@ export const CreateProjectModal = () => {
     e.preventDefault()
 
     if (date === undefined) return
-    const due_date = format(date, 'yyyy-MM-dd')
+    const dueDate = format(date, 'yyyy-MM-dd')
 
     createProject({
       name,
       description,
       status: 'pending',
-      due_date,
-      image_path: null,
+      dueDate,
+      imagePath: null,
     })
 
     handleClose()
