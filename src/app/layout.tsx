@@ -1,8 +1,6 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 
-import { Modals } from '@/components/modals'
-
 import { QuetyProvider } from '@/providers/query-provider'
 
 import './globals.css'
@@ -22,10 +20,7 @@ export default function RootLayout({
   return (
     <html lang='ja'>
       <body className={inter.className}>
-        <QuetyProvider>
-          <Modals />
-          {children}
-        </QuetyProvider>
+        <QuetyProvider>{children}</QuetyProvider>
       </body>
     </html>
   )
