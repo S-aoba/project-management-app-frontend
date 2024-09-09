@@ -102,7 +102,7 @@ export const useProjects = (projectId?: number) => {
           description: props.description,
           due_date: props.dueDate,
           status: props.status,
-          image_path: props.imagePath
+          image_path: props.imagePath,
         }
 
         const res = await fetch(
@@ -136,6 +136,48 @@ export const useProjects = (projectId?: number) => {
       },
     })
 
+  const { mutate: editProject, isPending: isEditProjectPending } = useMutation({
+    mutationKey: ['editProject'],
+    mutationFn: async ({ ...props }: CreateProjectRequestType) => {
+      await csrfToken()
+
+      const csrf = getCsrfToken('XSRF-TOKEN')
+
+      const projectData = {
+        name: props.name,
+        description: props.description,
+        due_date: props.dueDate,
+        status: props.status,
+        image_path: props.imagePath,
+      }
+
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_API}/api/projects/${projectId}`,
+        {
+          method: 'PUT',
+          credentials: 'include',
+          body: JSON.stringify(projectData),
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+            'X-XSRF-TOKEN': csrf!,
+          },
+        },
+      )
+
+      if (!res.ok) {
+        throw new Error('Unauthenticated.')
+      }
+
+      return await res.json()
+    },
+    onSuccess(data) {
+      queryClient.invalidateQueries({
+        queryKey: ['userProjects'],
+      })
+    },
+  })
+
   return {
     userProjects,
     isUserProjectsPending,
@@ -143,5 +185,7 @@ export const useProjects = (projectId?: number) => {
     isSingleProjectPending,
     createProject,
     isCreateProjectPending,
+    editProject,
+    isEditProjectPending,
   }
 }
