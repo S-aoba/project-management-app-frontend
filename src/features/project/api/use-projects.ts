@@ -15,10 +15,7 @@ type SingleProjectResponseType = {
   users: UserType[]
 }
 
-type CreateProjectRequestType = Pick<
-  Project,
-  'name' | 'description' | 'status' | 'dueDate' | 'imagePath'
->
+type CreateProjectRequestType = Pick<Project, 'name' | 'description' | 'status' | 'dueDate' | 'imagePath'>
 
 export const useProjects = (projectId?: number) => {
   const router = useRouter()
@@ -26,115 +23,103 @@ export const useProjects = (projectId?: number) => {
 
   const { csrfToken, getCsrfToken } = useCsrfToken()
 
-  const { data: userProjects, isPending: isUserProjectsPending } =
-    useQuery<UserProjectsResponseType>({
-      queryKey: ['userProjects'],
-      staleTime: 0,
-      queryFn: async () => {
-        await csrfToken()
+  const { data: userProjects, isPending: isUserProjectsPending } = useQuery<UserProjectsResponseType>({
+    queryKey: ['userProjects'],
+    staleTime: 0,
+    queryFn: async () => {
+      await csrfToken()
 
-        const csrf = getCsrfToken('XSRF-TOKEN')
+      const csrf = getCsrfToken('XSRF-TOKEN')
 
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_API}/api/user/projects`,
-          {
-            method: 'GET',
-            credentials: 'include',
-            headers: {
-              'Content-Type': 'application/json',
-              Accept: 'application/json',
-              'X-XSRF-TOKEN': csrf!,
-            },
-          },
-        )
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/user/projects`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          'X-XSRF-TOKEN': csrf!,
+        },
+      })
 
-        if (!res.ok) {
-          throw new Error('Unauthenticated.')
-        }
+      if (!res.ok) {
+        throw new Error('Unauthenticated.')
+      }
 
-        return await res.json()
-      },
-    })
+      return await res.json()
+    },
+  })
 
   // singleProject
-  const { data: singleProject, isPending: isSingleProjectPending } =
-    useQuery<SingleProjectResponseType>({
-      queryKey: ['singleProject', projectId],
-      enabled: !!projectId,
-      queryFn: async () => {
-        await csrfToken()
+  const { data: singleProject, isPending: isSingleProjectPending } = useQuery<SingleProjectResponseType>({
+    queryKey: ['singleProject', projectId],
+    enabled: !!projectId,
+    queryFn: async () => {
+      await csrfToken()
 
-        const csrf = getCsrfToken('XSRF-TOKEN')
+      const csrf = getCsrfToken('XSRF-TOKEN')
 
-        if (projectId === undefined) throw new Error('projectId is undefined.')
+      if (projectId === undefined) throw new Error('projectId is undefined.')
 
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_API}/api/projects/${projectId}`,
-          {
-            method: 'GET',
-            credentials: 'include',
-            headers: {
-              'Content-Type': 'application/json',
-              Accept: 'application/json',
-              'X-XSRF-TOKEN': csrf!,
-            },
-          },
-        )
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/projects/${projectId}`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          'X-XSRF-TOKEN': csrf!,
+        },
+      })
 
-        if (!res.ok) {
-          throw new Error('Unauthenticated.')
-        }
+      if (!res.ok) {
+        throw new Error('Unauthenticated.')
+      }
 
-        return await res.json()
-      },
-    })
+      return await res.json()
+    },
+  })
 
-  const { mutate: createProject, isPending: isCreateProjectPending } =
-    useMutation({
-      mutationKey: ['creatProject'],
-      mutationFn: async ({ ...props }: CreateProjectRequestType) => {
-        await csrfToken()
+  const { mutate: createProject, isPending: isCreateProjectPending } = useMutation({
+    mutationKey: ['creatProject'],
+    mutationFn: async ({ ...props }: CreateProjectRequestType) => {
+      await csrfToken()
 
-        const csrf = getCsrfToken('XSRF-TOKEN')
+      const csrf = getCsrfToken('XSRF-TOKEN')
 
-        const projectData = {
-          name: props.name,
-          description: props.description,
-          due_date: props.dueDate,
-          status: props.status,
-          image_path: props.imagePath,
-        }
+      const projectData = {
+        name: props.name,
+        description: props.description,
+        due_date: props.dueDate,
+        status: props.status,
+        image_path: props.imagePath,
+      }
 
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_API}/api/projects`,
-          {
-            method: 'POST',
-            credentials: 'include',
-            body: JSON.stringify(projectData),
-            headers: {
-              'Content-Type': 'application/json',
-              Accept: 'application/json',
-              'X-XSRF-TOKEN': csrf!,
-            },
-          },
-        )
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/projects`, {
+        method: 'POST',
+        credentials: 'include',
+        body: JSON.stringify(projectData),
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          'X-XSRF-TOKEN': csrf!,
+        },
+      })
 
-        if (!res.ok) {
-          throw new Error('Unauthenticated.')
-        }
+      if (!res.ok) {
+        throw new Error('Unauthenticated.')
+      }
 
-        return await res.json()
-      },
-      onSuccess(data) {
-        queryClient.invalidateQueries({
-          queryKey: ['userProjects'],
-        })
+      return await res.json()
+    },
+    onSuccess(data) {
+      queryClient.invalidateQueries({
+        queryKey: ['userProjects'],
+      })
 
-        const id = data.data.id
+      const id = data.data.id
 
-        router.push(`/projects/${id}`)
-      },
-    })
+      router.push(`/projects/${id}`)
+    },
+  })
 
   const { mutate: editProject, isPending: isEditProjectPending } = useMutation({
     mutationKey: ['editProject'],
@@ -151,19 +136,16 @@ export const useProjects = (projectId?: number) => {
         image_path: props.imagePath,
       }
 
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_API}/api/projects/${projectId}`,
-        {
-          method: 'PUT',
-          credentials: 'include',
-          body: JSON.stringify(projectData),
-          headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json',
-            'X-XSRF-TOKEN': csrf!,
-          },
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/projects/${projectId}`, {
+        method: 'PUT',
+        credentials: 'include',
+        body: JSON.stringify(projectData),
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          'X-XSRF-TOKEN': csrf!,
         },
-      )
+      })
 
       if (!res.ok) {
         throw new Error('Unauthenticated.')
@@ -174,6 +156,9 @@ export const useProjects = (projectId?: number) => {
     onSuccess(data) {
       queryClient.invalidateQueries({
         queryKey: ['userProjects'],
+      })
+      queryClient.invalidateQueries({
+        queryKey: ['singleProject', projectId],
       })
     },
   })
