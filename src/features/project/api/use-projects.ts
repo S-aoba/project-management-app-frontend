@@ -163,6 +163,40 @@ export const useProjects = (projectId?: number) => {
     },
   })
 
+  const { mutate: deleteProject, isPending: isDeleteProjectPending } = useMutation({
+    mutationKey: ['deleteProject'],
+    mutationFn: async () => {
+      await csrfToken()
+
+      const csrf = getCsrfToken('XSRF-TOKEN')
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/projects/${projectId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          'X-XSRF-TOKEN': csrf!,
+        },
+      })
+
+      if (!res.ok) {
+        throw new Error('Unauthenticated.')
+      }
+
+      return await res.json()
+    },
+    onSuccess() {
+      queryClient.invalidateQueries({
+        queryKey: ['userProjects'],
+      })
+
+      router.push('/')
+
+      queryClient.removeQueries({ queryKey: ['singleProject', projectId] })
+    },
+  })
+
   return {
     userProjects,
     isUserProjectsPending,
@@ -172,5 +206,7 @@ export const useProjects = (projectId?: number) => {
     isCreateProjectPending,
     editProject,
     isEditProjectPending,
+    deleteProject,
+    isDeleteProjectPending,
   }
 }
