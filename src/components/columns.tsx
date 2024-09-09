@@ -43,7 +43,7 @@ export const columns: ColumnDef<TaskType>[] = [
     header: 'Name',
   },
   {
-    accessorKey: 'dueDate',
+    accessorKey: 'due_date',
     header: 'DueDate',
   },
   {

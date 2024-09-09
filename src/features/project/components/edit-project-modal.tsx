@@ -1,7 +1,7 @@
 'use client'
 
 import { useParams } from 'next/navigation'
-import React, { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { format } from 'date-fns'
 import { Calendar as CalendarIcon } from 'lucide-react'
@@ -9,73 +9,61 @@ import { Calendar as CalendarIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-
 import { Calendar } from '@/components/ui/calendar'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
-import { useMockUserProjects } from '@/mock-data/store/use-mock-user-projects'
-
+import { useProjects } from '../api/use-projects'
 import { useEditProjectModal } from '../store/use-edit-project-modal'
 
 export const EditProjectModal = () => {
-  const { projectId } = useParams()
+  const params = useParams()
+  const projectId = Number(params.projectId)
+
+  // TODO:projectIdが存在していない場合NotFoundPageに遷移させる処理を後で実装
+
+  const { singleProject, editProject } = useProjects(projectId)
+
+  const [name, setName] = useState<string>('')
+  const [description, setDescription] = useState<string>('')
+  const [status, setStatus] = useState<'pending' | 'is_progress' | 'completed'>('pending')
+  const [date, setDate] = useState<Date | undefined>(undefined)
 
   const [open, setOpen] = useEditProjectModal()
-  const [mockUserProjects, setMockUserProjects] = useMockUserProjects()
-  const userProject = mockUserProjects.filter(
-    (project) => project.id === Number(projectId),
-  )[0]
 
-  const [name, setName] = useState(userProject.name)
-  const [description, setDescription] = useState(userProject.description)
-  const [status, setStatus] = useState<'progress' | 'is_pending' | 'completed'>(
-    userProject.status,
-  )
-  const [date, setDate] = useState<Date | undefined>(
-    userProject.dueData ? new Date(userProject.dueData) : new Date(),
-  )
+  useEffect(() => {
+    if (singleProject) {
+      setName(singleProject.project.name)
+      setDescription(singleProject.project.description)
+      setStatus(singleProject.project.status)
+      setDate(new Date(singleProject.project.dueDate))
+    }
+  }, [singleProject, setDate, setName, setDescription, setStatus])
 
   const handleClose = () => {
+    setName('')
+    setDescription('')
+    setStatus('pending')
+    setDate(undefined)
+
     setOpen(false)
   }
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    // TODO: API連携に切り替える
-    const updatedUser = mockUserProjects.map((project) => {
-      if (project.id === Number(projectId)) {
-        return {
-          ...project,
-          name,
-          description,
-          status,
-          dueData: date ? format(date, 'yyyy-MM-dd') : userProject.dueData,
-        }
-      }
-      return project
-    })
+    if (date === undefined) return
+    const dueDate = format(date, 'yyyy-MM-dd')
 
-    setMockUserProjects(updatedUser)
+    editProject({
+      name,
+      description,
+      status,
+      dueDate,
+      imagePath: null,
+    })
 
     handleClose()
   }
@@ -88,7 +76,7 @@ export const EditProjectModal = () => {
           <DialogDescription />
           <form className='space-y-4' onSubmit={handleSubmit}>
             <Input
-              defaultValue={userProject.name}
+              defaultValue={singleProject?.project.name}
               onChange={(e) => setName(e.target.value)}
               name={name}
               disabled={false}
@@ -98,7 +86,7 @@ export const EditProjectModal = () => {
               placeholder='Project name'
             />
             <Input
-              defaultValue={userProject.description}
+              defaultValue={singleProject?.project.description}
               onChange={(e) => setDescription(e.target.value)}
               name={description}
               disabled={false}
@@ -107,18 +95,16 @@ export const EditProjectModal = () => {
               placeholder='Project Description'
             />
             <Select
-              defaultValue={'progress'}
+              defaultValue={singleProject?.project.status}
               name={status}
-              onValueChange={(e) =>
-                setStatus(e as 'progress' | 'is_pending' | 'completed')
-              }>
+              onValueChange={(e) => setStatus(e as 'pending' | 'is_progress' | 'completed')}>
               <SelectTrigger>
                 <SelectValue placeholder='Project Status' />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value='progress'>progress</SelectItem>
-                <SelectItem value='is_pending'>is_pending</SelectItem>
-                <SelectItem value='completed'>completd</SelectItem>
+                <SelectItem value='pending'>pending</SelectItem>
+                <SelectItem value='is_progress'>is_progress</SelectItem>
+                <SelectItem value='completed'>completed</SelectItem>
               </SelectContent>
             </Select>
             <Popover>
@@ -126,29 +112,17 @@ export const EditProjectModal = () => {
                 <Button
                   disabled={false}
                   variant={'outline'}
-                  className={cn(
-                    'w-[280px] justify-start text-left font-normal',
-                    !date && 'text-muted-foreground',
-                  )}>
+                  className={cn('w-[280px] justify-start text-left font-normal', !date && 'text-muted-foreground')}>
                   <CalendarIcon className='mr-2 h-4 w-4' />
                   {date ? format(date, 'yyyy-MM-dd') : <span>Pick a date</span>}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className='w-auto p-0'>
-                <Calendar
-                  mode='single'
-                  selected={date}
-                  onSelect={setDate}
-                  initialFocus
-                />
+                <Calendar mode='single' selected={date} onSelect={setDate} initialFocus />
               </PopoverContent>
             </Popover>
             <div className='flex justify-end space-x-4'>
-              <Button
-                variant={'outline'}
-                type='button'
-                disabled={false}
-                onClick={() => handleClose()}>
+              <Button variant={'outline'} type='button' disabled={false} onClick={() => handleClose()}>
                 Cancel
               </Button>
               <Button disabled={false}>Edit</Button>
