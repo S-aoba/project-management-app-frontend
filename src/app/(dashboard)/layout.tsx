@@ -1,4 +1,3 @@
-import { Modals } from '@/components/modals'
 import { Navigation } from '@/components/navigation'
 
 export default function DashboardLayout({
@@ -8,7 +7,6 @@ export default function DashboardLayout({
 }>) {
   return (
     <div className='h-full w-full flex'>
-      <Modals />
       <Navigation />
       {children}
     </div>

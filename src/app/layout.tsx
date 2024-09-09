@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 
 import { QuetyProvider } from '@/providers/query-provider'
 
+import { Modals } from '@/components/modals'
 import './globals.css'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -20,7 +21,10 @@ export default function RootLayout({
   return (
     <html lang='ja'>
       <body className={inter.className}>
-        <QuetyProvider>{children}</QuetyProvider>
+        <QuetyProvider>
+          <Modals />
+          {children}
+        </QuetyProvider>
       </body>
     </html>
   )
