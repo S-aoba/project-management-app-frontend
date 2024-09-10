@@ -1,4 +1,4 @@
-import { QueryClient, useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 
 import { useCsrfToken } from '@/features/auth/api/use-csrf-token'
@@ -19,13 +19,12 @@ type CreateProjectRequestType = Pick<Project, 'name' | 'description' | 'status' 
 
 export const useProjects = (projectId?: number) => {
   const router = useRouter()
-  const queryClient = new QueryClient()
+  const queryClient = useQueryClient()
 
   const { csrfToken, getCsrfToken } = useCsrfToken()
 
   const { data: userProjects, isPending: isUserProjectsPending } = useQuery<UserProjectsResponseType>({
     queryKey: ['userProjects'],
-    staleTime: 0,
     queryFn: async () => {
       await csrfToken()
 
