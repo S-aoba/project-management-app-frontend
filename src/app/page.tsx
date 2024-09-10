@@ -18,6 +18,7 @@ export default function Home() {
     if (isUserProjectsPending) return
 
     if (projectId) {
+      setOpen(false)
       router.replace(`/projects/${projectId}`)
     } else if (!open) {
       setOpen(true)
