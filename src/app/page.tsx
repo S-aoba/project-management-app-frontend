@@ -12,7 +12,7 @@ export default function Home() {
   const [open, setOpen] = useCreateProjectModal()
 
   const { userProjects, isUserProjectsPending } = useProjects()
-  const projectId = useMemo(() => userProjects?.data[0].id, [userProjects])
+  const projectId = useMemo(() => userProjects?.data[0]?.id, [userProjects])
 
   useEffect(() => {
     if (isUserProjectsPending) return
